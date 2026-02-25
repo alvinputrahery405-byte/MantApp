@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MantApp - Mantap pahamnya, Mantap nilainya</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Parser Markdown & LaTeX (MathJax) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            startup: { typeset: false } // Trigger manual setelah streaming selesai
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f9;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(66, 153, 225, 0.1), 0 8px 10px -6px rgba(66, 153, 225, 0.1);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #e0ebff 0%, #ffffff 100%);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Smooth 90Hz+ Animations */
+        @keyframes smoothEnter {
+            0% { opacity: 0; transform: translateY(15px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-page {
+            animation: smoothEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            will-change: transform, opacity;
+        }
+        .smooth-btn {
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .smooth-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Container Transitions */
+        #content-area {
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        /* Premium Chat Styles & Markdown */
+        .chat-ai-premium {
+            background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.1);
+        }
+        .prose p { margin-bottom: 0.75em; }
+        .prose p:last-child { margin-bottom: 0; }
+        .prose ul, .prose ol { padding-left: 1.5em; margin-bottom: 0.75em; }
+        .prose li { margin-bottom: 0.25em; list-style-type: disc;}
+        .prose strong { color: #1E3A8A; }
+        .mjx-chtml { font-size: 105% !important; outline: none; }
+    </style>
+</head>
+<body class="bg-[#F8FAFF] min-h-screen flex justify-center text-gray-800">
+
+    <div id="app" class="w-full max-w-md bg-white min-h-screen shadow-2xl relative overflow-hidden flex flex-col">
+        
+        <!-- Dynamic Content Area -->
+        <div id="content-area" class="flex-1 overflow-y-auto no-scrollbar relative">
+            <!-- Konten di-inject di sini -->
+        </div>
+
+        <!-- Tombol Mengambang (Kembali ke Materi) -->
+        <div id="main-fab" class="fixed bottom-5 left-1/2 -translate-x-1/2 ml-2.5 z-30 flex justify-center items-center hidden">
+            <button onclick="changeTab('materi', true)" class="bg-gradient-to-r from-blue-600 to-[#1E3A8A] text-white p-4 rounded-full shadow-lg shadow-blue-900/40 border-[5px] border-white smooth-btn hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6.5 15.5H20"/></svg>
+            </button>
+        </div>
+
+        <!-- Navigasi Bawah -->
+        <nav id="main-bottom-nav" class="fixed bottom-0 w-full max-w-md bg-white border-t border-gray-100 px-6 py-3 flex justify-between items-center z-20 transition-transform duration-300 hidden">
+            <button onclick="changeTab('home', true)" class="flex flex-col items-center gap-1 text-[#1E3A8A] nav-btn smooth-btn" id="nav-home">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span class="text-[10px] font-bold">Beranda</span>
+            </button>
+            <button onclick="changeTab('tanya-ai', true)" class="flex flex-col items-center gap-1 text-gray-400 nav-btn smooth-btn" id="nav-tanya-ai">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                <span class="text-[10px] font-bold">Tanya AI</span>
+            </button>
+            
+            <div class="w-16"></div> <!-- Ruang ekstra untuk tombol mengambang -->
+            
+            <button onclick="changeTab('kuis', true)" class="flex flex-col items-center gap-1 text-gray-400 nav-btn smooth-btn" id="nav-kuis">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <span class="text-[10px] font-bold">Kuis</span>
+            </button>
+            <button onclick="changeTab('profile', true)" class="flex flex-col items-center gap-1 text-gray-400 nav-btn smooth-btn" id="nav-profile">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span class="text-[10px] font-bold">Profil</span>
+            </button>
+        </nav>
+        
+        <!-- Interactive Global Modal -->
+        <div id="custom-modal" class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex-col items-center justify-center p-6 opacity-0 pointer-events-none transition-all duration-300 flex">
+            <div class="bg-white rounded-3xl p-6 w-full max-w-xs text-center transform scale-95 transition-transform duration-300 shadow-2xl" id="modal-content">
+                <div id="modal-icon" class="text-5xl mb-4">✨</div>
+                <h3 id="modal-title" class="text-xl font-bold text-gray-800 mb-2">Title</h3>
+                <p id="modal-desc" class="text-gray-500 text-sm mb-6 leading-relaxed">Message</p>
+                <div id="modal-footer" class="w-full">
+                    <button onclick="closeModal()" class="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 smooth-btn">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- GLOBAL STATE ---
+        const apiKey = "";
+        let userName = "Bima Saputra";
+        let userClass = "Siswa MantApp";
+        let profileImg = "https://i.pravatar.cc/150?u=bima";
+        let userXP = 1240; 
+        
+        // Detail Materi State (Lebih Dinamis)
+        let activeDetailTopicTitle = ''; 
+        let activeDetailTab = 'penjelasan'; 
+        let activeDetailSubTopic = 0; 
+
+        let activeMateriTab = 'Kelas X'; 
+        
+        // Kuis State
+        let activeKuisTab = 'Kelas X';
+        let currentKuisTopicData = null;
+        let currentKuisQIndex = 0;
+        let currentKuisScore = 0;
+        let kuisHasAnswered = false;
+        let selectedKuisOption = null;
+
+        let currentActiveTab = 'home';
+        let currentHistory = [];
+        let userAnswers = {};
+        
+        // Memuat State Lokal dengan Aman
+        let userRateLimit = { count: 0, timestamp: Date.now() };
+        let chatMessages = [];
+        let currentChatImage = null; 
+        
+        try {
+            const storedRateLimit = localStorage.getItem('mantapp_ratelimit');
+            if (storedRateLimit) userRateLimit = JSON.parse(storedRateLimit);
+        } catch(e) {}
+
+        function getHistoryKey() { return `mantapp_chat_${userName}`; }
+
+        const materiData = {
+            "Kelas X": [
+                { title: "Eksponen dan Logaritma", icon: "🔢", desc: "Sifat eksponen, bentuk akar, logaritma" },
+                { title: "Sistem Persamaan dan Pertidaksamaan Linear", icon: "📊", desc: "Materi persamaan dan pertidaksamaan" },
+                { title: "Fungsi Kuadrat", icon: "📈", desc: "Grafik, sifat, dan aplikasi fungsi kuadrat" },
+                { title: "Trigonometri (Dasar)", icon: "📐", desc: "Konsep dasar trigonometri" },
+                { title: "Statistika dan Peluang Dasar", icon: "🎲", desc: "Konsep awal statistika dan peluang" }
+            ],
+            "Kelas XI": [
+                { title: "Barisan dan Deret", icon: "∑", desc: "Aritmatika, Geometri, tak hingga" },
+                { title: "Vektor", icon: "↗️", desc: "Operasi vektor 2D dan 3D" },
+                { title: "Lingkaran", icon: "⭕", desc: "Persamaan dan unsur lingkaran" },
+                { title: "Komposisi Fungsi dan Invers", icon: "ƒ", desc: "Fungsi komposisi dan fungsi invers" },
+                { title: "Polinomial", icon: "✖️", desc: "Suku banyak dan operasinya" },
+                { title: "Matriks", icon: "⊞", desc: "Determinan, invers, dan operasi matriks" },
+                { title: "Transformasi Geometri", icon: "🔄", desc: "Translasi, rotasi, dilatasi, refleksi" },
+                { title: "Statistika, Kombinatorika & Peluang Lanjut", icon: "📊", desc: "Analisis data dan peluang lanjutan" }
+            ],
+            "Kelas XII": [
+                { title: "Limit", icon: "∞", desc: "Limit aljabar dan trigonometri" },
+                { title: "Turunan", icon: "⚡", desc: "Konsep turunan dan aplikasinya" },
+                { title: "Integral", icon: "∫", desc: "Integral tak tentu dan tentu" },
+                { title: "Penerapan Materi Sebelumnya", icon: "💡", desc: "Aplikasi kalkulus dan materi lainnya" }
+            ]
+        };
+
+        const kuisData = {
+            "Kelas X": [
+                {
+                    title: "Eksponen dan Logaritma",
+                    icon: "📝",
+                    desc: "Latihan Sifat & Persamaan",
+                    questions: [
+                        {
+                            q: "Bentuk sederhana dari $2^4 \\times 2^3$ adalah...",
+                            options: { a: "$2^{12}$", b: "$2^7$", c: "$4^7$" },
+                            correct: "b",
+                            explanation: "Gunakan sifat perkalian eksponen dengan basis yang sama: $a^m \\times a^n = a^{m+n}$.<br><br>Maka, $2^4 \\times 2^3 = 2^{4+3} = 2^7$."
+                        },
+                        {
+                            q: "Berapakah hasil dari $3^{-2}$?",
+                            options: { a: "$-9$", b: "$\\frac{1}{6}$", c: "$\\frac{1}{9}$" },
+                            correct: "c",
+                            explanation: "Gunakan sifat pangkat negatif: $a^{-n} = \\frac{1}{a^n}$.<br><br>Maka, $3^{-2} = \\frac{1}{3^2} = \\frac{1}{9}$."
+                        },
+                        {
+                            q: "Tentukan nilai $x$ yang memenuhi persamaan $2^{x-1} = 8$.",
+                            options: { a: "2", b: "3", c: "4" },
+                            correct: "c",
+                            explanation: "Samakan basis di kedua ruas terlebih dahulu:<br>$2^{x-1} = 8$<br>$2^{x-1} = 2^3$<br>Karena basis sudah sama (2), turunkan pangkatnya:<br>$x - 1 = 3$<br>$x = 4$."
+                        }
+                    ]
+                },
+                {
+                    title: "Sistem Persamaan Linear",
+                    icon: "📝",
+                    desc: "Latihan SPLDV",
+                    questions: [
+                        {
+                            q: "Jika $x+y=5$ dan $x-y=1$, maka nilai $x$ adalah...",
+                            options: { a: "2", b: "3", c: "4" },
+                            correct: "b",
+                            explanation: "Gunakan metode eliminasi dengan menjumlahkan kedua persamaan:<br>$\\phantom{+}x + y = 5$<br>$\\underline{\\phantom{+}x - y = 1} \\, +$<br>$\\phantom{+...}2x = 6 \\rightarrow x = 3$."
+                        }
+                    ]
+                }
+            ],
+            "Kelas XI": [
+                {
+                    title: "Barisan dan Deret",
+                    icon: "📝",
+                    desc: "Latihan Aritmatika",
+                    questions: [
+                        {
+                            q: "Suku ke-n dari barisan aritmatika dirumuskan dengan $U_n = a + (n-1)b$. Jika $a=2$ dan $b=3$, berapakah suku ke-5 ($U_5$)?",
+                            options: { a: "14", b: "15", c: "17" },
+                            correct: "a",
+                            explanation: "Substitusikan nilai ke dalam rumus:<br>$U_5 = 2 + (5-1)3$<br>$U_5 = 2 + (4)(3)$<br>$U_5 = 2 + 12 = 14$."
+                        }
+                    ]
+                }
+            ],
+            "Kelas XII": [
+                {
+                    title: "Turunan Fungsi",
+                    icon: "📝",
+                    desc: "Latihan Turunan Dasar",
+                    questions: [
+                        {
+                            q: "Turunan pertama dari fungsi $f(x) = 3x^2 + 5x - 2$ adalah...",
+                            options: { a: "$6x + 5$", b: "$6x - 2$", c: "$3x + 5$" },
+                            correct: "a",
+                            explanation: "Gunakan aturan turunan $f(x)=ax^n \\rightarrow f'(x)=an x^{n-1}$:<br>Turunan $3x^2$ adalah $2 \\cdot 3x^1 = 6x$.<br>Turunan $5x$ adalah $5$.<br>Turunan konstanta $-2$ adalah $0$.<br><br>Maka, $f'(x) = 6x + 5$."
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // --- DATABASE MATERI DETAIL (MULTIPLE SUBJECTS) ---
+        const detailMateriData = {
+            "Eksponen dan Logaritma": [
+                {
+                    title: "1. Sifat Dasar & Fungsi Eksponen",
+                    videoId: "lScgN1qnirY",
+                    videoId2: "fj4B6etl8zs", // Video Bagian 2
+                    penjelasan: `
+                        <div class="bg-indigo-50 p-5 rounded-2xl border border-indigo-100">
+                            <h3 class="font-bold text-indigo-800 mb-2 flex items-center gap-2"><span>🦠</span> Analogi Sederhana</h3>
+                            <p class="text-xs text-indigo-700 font-medium leading-relaxed">
+                                Bayangkan penyebaran virus. 1 orang menularkan ke 2 orang. Lalu 2 orang itu menularkan lagi ke 2 orang jadi 4. Polanya perkalian berulang ($2 \\times 2 \\times 2...$). Ini adalah konsep dasar perpangkatan!
+                            </p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50 mt-4">
+                            <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><span>📌</span> Definisi</h3>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed mb-4">Eksponen (bilangan berpangkat) adalah bentuk perkalian yang berulang sebanyak pangkatnya.</p>
+                            <div class="bg-blue-50 p-4 rounded-xl text-center font-mono text-blue-900 font-bold mb-4 border border-blue-100">
+                                $a^n = a \\times a \\times ... \\times a$
+                                <div class="text-[10px] font-sans text-blue-500 mt-1 font-semibold uppercase tracking-wider">(sebanyak n faktor)</div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50 mt-4">
+                            <h3 class="font-bold text-blue-800 mb-4 flex items-center gap-2"><span>✨</span> Sifat-Sifat Penting</h3>
+                            <ul class="space-y-2 text-sm">
+                                <li class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-[#1E3A8A] font-medium"><span class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Kali (Basis Sama)</span> $a^m \\times a^n = a^{m+n}$</li>
+                                <li class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-[#1E3A8A] font-medium"><span class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Bagi (Basis Sama)</span> $\\frac{a^m}{a^n} = a^{m-n}$</li>
+                                <li class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-[#1E3A8A] font-medium"><span class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Pangkat Bertingkat</span> $(a^m)^n = a^{m \\times n}$</li>
+                                <li class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-[#1E3A8A] font-medium"><span class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Pangkat Nol</span> $a^0 = 1$</li>
+                                <li class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-[#1E3A8A] font-medium"><span class="text-[11px] font-bold text-gray-500 uppercase block mb-1">Pangkat Negatif</span> $a^{-n} = \\frac{1}{a^n}$</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50 mt-4">
+                            <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><span>📈</span> Fungsi Eksponensial</h3>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed mb-4">Fungsi eksponensial memetakan setiap $x$ ke dalam bentuk pangkat. Bentuk umumnya adalah:</p>
+                            <div class="bg-blue-50 p-4 rounded-xl text-center font-mono text-blue-900 font-bold mb-4 border border-blue-100">
+                                $f(x) = k \cdot a^x$
+                            </div>
+                            <ul class="space-y-2 text-xs text-gray-600">
+                                <li><b>Syarat Basis (a):</b> $a > 0$ dan $a \\neq 1$.</li>
+                                <li><b>Grafik Monoton Naik:</b> Terjadi jika basis $a > 1$ (Kurva makin ke kanan makin naik).</li>
+                                <li><b>Grafik Monoton Turun:</b> Terjadi jika basis $0 < a < 1$ (Kurva makin ke kanan makin turun).</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50 mt-4">
+                            <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><span>🌱</span> Pertumbuhan & Peluruhan</h3>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed">Fungsi eksponen banyak diterapkan dalam kehidupan nyata, seperti:</p>
+                            <div class="mt-3 space-y-2">
+                                <div class="bg-green-50 p-3 rounded-xl border border-green-100">
+                                    <span class="text-[10px] font-bold text-green-700 uppercase block mb-1">Pertumbuhan (Kurva Naik)</span>
+                                    <p class="text-[11px] text-green-800 leading-relaxed">Contoh: Perkembangbiakan bakteri, pertumbuhan jumlah penduduk seiring bertambahnya tahun.</p>
+                                </div>
+                                <div class="bg-red-50 p-3 rounded-xl border border-red-100">
+                                    <span class="text-[10px] font-bold text-red-700 uppercase block mb-1">Peluruhan (Kurva Turun)</span>
+                                    <p class="text-[11px] text-red-800 leading-relaxed">Contoh: Penurunan massa zat radioaktif seiring waktu.</p>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    contohSoal: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Contoh 1</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Sederhanakan bentuk $3^2 \\times 3^3$</h3>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-semibold mb-2">Pembahasan:</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Karena basisnya sama (yaitu 3) dan operasinya perkalian, kita cukup <b>menjumlahkan pangkatnya</b>.</p>
+                                <div class="font-mono font-bold text-[#1E3A8A] text-sm bg-white p-3 rounded-lg border border-gray-100">
+                                    $= 3^{2+3} \\\\[5px] = 3^5$
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50 mt-4">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Contoh 2</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Berapakah hasil dari $2^{-3}$?</h3>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-semibold mb-2">Pembahasan:</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Sifat pangkat negatif mengubahnya menjadi bentuk pecahan berbanding terbalik.</p>
+                                <div class="font-mono font-bold text-[#1E3A8A] text-sm bg-white p-3 rounded-lg border border-gray-100">
+                                    $= \\frac{1}{2^3} \\\\[5px] = \\frac{1}{8}$
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50 mt-4">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Contoh 3 (Fungsi)</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Tentukan titik potong fungsi $y = 2^{x+2} + 3$ dengan sumbu Y.</h3>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-semibold mb-2">Pembahasan:</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Titik potong dengan sumbu Y selalu terjadi ketika $x = 0$. Kita substitusikan nilai $x=0$ ke fungsinya:</p>
+                                <div class="font-mono font-bold text-[#1E3A8A] text-sm bg-white p-3 rounded-lg border border-gray-100">
+                                    $y = 2^{0+2} + 3$<br>
+                                    $y = 2^2 + 3$<br>
+                                    $y = 4 + 3 = 7$<br><br>
+                                    <span class="font-sans text-xs text-gray-500 block">Jadi, titik potongnya adalah $(0, 7)$.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50 mt-4">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Contoh 4 (Peluruhan)</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Massa suatu radioaktif menyusut dengan rumus $y = 10 \cdot (\\frac{1}{2})^{\\frac{t}{25}}$ gram. Berapa massa setelah 100 tahun?</h3>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-semibold mb-2">Pembahasan:</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Substitusikan waktu $t = 100$ ke dalam fungsi peluruhan:</p>
+                                <div class="font-mono font-bold text-[#1E3A8A] text-[13px] bg-white p-3 rounded-lg border border-gray-100 overflow-x-auto leading-loose">
+                                    $y = 10 \cdot (\\frac{1}{2})^{\\frac{100}{25}}$<br>
+                                    $y = 10 \cdot (\\frac{1}{2})^4$<br>
+                                    $y = 10 \cdot (\\frac{1}{16})$<br>
+                                    $y = \\frac{10}{16} = 0,625 \\text{ gram}$
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    title: "2. Persamaan Eksponen (Basis Sama)",
+                    videoId: "GoYk9NBdkn4",
+                    penjelasan: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><span>⚖️</span> Konsep Keseimbangan</h3>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed mb-4">Persamaan eksponen adalah persamaan yang pangkatnya memuat variabel $x$. Kunci utamanya adalah <b>menyamakan basis</b> di ruas kiri dan kanan.</p>
+                            <div class="bg-blue-50 p-4 rounded-xl font-mono text-blue-900 font-bold border border-blue-100 text-sm text-center">
+                                Jika $a^{f(x)} = a^{g(x)}$, <br>maka $f(x) = g(x)$
+                                <div class="text-[10px] font-sans text-blue-500 mt-2 font-semibold uppercase tracking-wider">(Syarat $a > 0$ dan $a \\neq 1$)</div>
+                            </div>
+                        </div>
+                    `,
+                    contohSoal: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Contoh Soal</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Tentukan nilai $x$ dari persamaan $2^{x-1} = 8$</h3>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-semibold mb-2">Pembahasan:</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Ubah angka $8$ menjadi basis $2$ agar ruas kiri dan kanan memiliki basis yang sama.</p>
+                                <div class="font-mono font-bold text-[#1E3A8A] text-sm bg-white p-3 rounded-lg border border-gray-100 overflow-x-auto">
+                                    $2^{x-1} = 2^3$ <br>
+                                    <span class="text-xs text-gray-400 block my-1 font-sans">(Coret basis 2, turunkan pangkatnya)</span>
+                                    $x - 1 = 3$ <br>
+                                    $x = 3 + 1$ <br>
+                                    $x = 4$
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    title: "3. Persamaan Eksponen (Basis Beda)",
+                    videoId: "mpZaZUlIn2w",
+                    penjelasan: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><span>🎭</span> Basis Beda, Pangkat Sama</h3>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed mb-4">Bagaimana jika basisnya berbeda tapi pangkatnya sama persis? Angka berapapun jika dipangkatkan $0$ hasilnya pasti $1$. Oleh karena itu, satu-satunya cara agar seimbang adalah membuat pangkatnya bernilai $0$.</p>
+                            <div class="bg-blue-50 p-4 rounded-xl font-mono text-blue-900 font-bold border border-blue-100 text-sm text-center">
+                                Jika $a^{f(x)} = b^{f(x)}$, <br>maka $f(x) = 0$
+                                <div class="text-[10px] font-sans text-blue-500 mt-2 font-semibold uppercase tracking-wider">(Syarat $a \\neq b$)</div>
+                            </div>
+                        </div>
+                    `,
+                    contohSoal: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Contoh Soal</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Tentukan himpunan penyelesaian dari $3^{x-2} = 5^{x-2}$</h3>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-semibold mb-2">Pembahasan:</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Basis di ruas kiri dan kanan berbeda (3 dan 5), namun pangkatnya sama-sama $x-2$. Langsung samakan pangkat dengan nol.</p>
+                                <div class="font-mono font-bold text-[#1E3A8A] text-sm bg-white p-3 rounded-lg border border-gray-100">
+                                    $x - 2 = 0$ <br>
+                                    $x = 2$
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    title: "4. Pertidaksamaan Eksponen",
+                    videoId: "spy8T-qewUk",
+                    penjelasan: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><span>⚠️</span> Aturan Tanda</h3>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed mb-4">Mengerjakan pertidaksamaan hampir sama dengan persamaan. Hanya saja ada aturan rawan jebakan pada nilai basisnya:</p>
+                            <div class="space-y-3">
+                                <div class="bg-green-50 p-3 rounded-xl border border-green-100">
+                                    <span class="text-[10px] font-bold text-green-600 uppercase block mb-1">Syarat Basis $> 1$</span>
+                                    <p class="text-xs font-semibold text-gray-700">Tanda pertidaksamaan <b>TETAP</b>.</p>
+                                    <p class="font-mono text-sm text-[#1E3A8A] mt-1">$a^{f(x)} > a^{g(x)} \\rightarrow f(x) > g(x)$</p>
+                                </div>
+                                <div class="bg-red-50 p-3 rounded-xl border border-red-100">
+                                    <span class="text-[10px] font-bold text-red-600 uppercase block mb-1">Syarat $0 < \\text{Basis} < 1$ (Pecahan)</span>
+                                    <p class="text-xs font-semibold text-gray-700">Tanda pertidaksamaan <b>DIBALIK</b>.</p>
+                                    <p class="font-mono text-sm text-[#1E3A8A] mt-1">$a^{f(x)} > a^{g(x)} \\rightarrow f(x) < g(x)$</p>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    contohSoal: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Contoh Soal</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Tentukan batas $x$ dari $(\\frac{1}{2})^{x-1} > (\\frac{1}{2})^3$</h3>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-semibold mb-2">Pembahasan:</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Karena basisnya adalah pecahan $1/2$ (yang mana berada di antara 0 dan 1), maka <b>tanda wajib dibalik</b>.</p>
+                                <div class="font-mono font-bold text-[#1E3A8A] text-sm bg-white p-3 rounded-lg border border-gray-100">
+                                    $x - 1 < 3$ <br>
+                                    $x < 3 + 1$ <br>
+                                    $x < 4$
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    title: "5. Pengantar Logaritma",
+                    videoId: "x4aMJDGZ-oU",
+                    penjelasan: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><span>🔄</span> Kebalikan Eksponen</h3>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed mb-4">Logaritma secara simpel adalah operasi matematika yang merupakan <b>kebalikan (invers) dari eksponen</b>. Jika eksponen mencari hasil pangkat, logaritma justru mencari <i>"angka berapa pangkatnya?"</i></p>
+                            <div class="bg-blue-50 p-4 rounded-xl font-mono text-blue-900 font-bold border border-blue-100 text-sm text-center">
+                                Jika $a^c = b$<br>maka $^a\\log b = c$
+                            </div>
+                            <p class="text-[10px] text-gray-400 font-semibold mt-3 italic">Catatan: Basis $a$ wajib $> 0$ dan $\\neq 1$.</p>
+                        </div>
+                    `,
+                    contohSoal: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Contoh Soal</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Berapakah nilai dari $^2\\log 8$?</h3>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-semibold mb-2">Pembahasan:</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Kita bertanya: <i>"2 pangkat berapa yang hasilnya 8?"</i> Jawabannya adalah 3.</p>
+                                <div class="font-mono font-bold text-[#1E3A8A] text-sm bg-white p-3 rounded-lg border border-gray-100">
+                                    $2^3 = 8 \\rightarrow ^2\\log 8 = 3$
+                                </div>
+                            </div>
+                        </div>
+                    `
+                }
+            ],
+            "Sistem Persamaan dan Pertidaksamaan Linear": [
+                {
+                    title: "1. Konsep SPLDV",
+                    videoId: "CDtqOpwJnIQ",
+                    penjelasan: `
+                        <div class="bg-indigo-50 p-5 rounded-2xl border border-indigo-100">
+                            <h3 class="font-bold text-indigo-800 mb-2 flex items-center gap-2"><span>🛍️</span> Analogi Belanja</h3>
+                            <p class="text-xs text-indigo-700 font-medium leading-relaxed">
+                                Bayangkan kamu membeli 2 buku dan 1 pensil seharga Rp 10.000. Temanmu membeli 1 buku dan 3 pensil seharga Rp 15.000. Berapa harga satuannya? Ini adalah contoh nyata aplikasi SPLDV!
+                            </p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50 mt-4">
+                            <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><span>📌</span> Definisi</h3>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed mb-4">Sistem Persamaan Linear Dua Variabel (SPLDV) adalah kumpulan persamaan matematika yang memiliki <b>dua variabel (huruf)</b> dan pangkat tertingginya adalah <b>satu (linear)</b>.</p>
+                            <div class="bg-blue-50 p-4 rounded-xl text-center font-mono text-blue-900 font-bold mb-4 border border-blue-100 leading-loose">
+                                $ax + by = c$<br>
+                                $px + qy = r$
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <div class="bg-gray-50 px-3 py-2 rounded-lg text-xs font-medium text-gray-600 border border-gray-100"><b>Variabel</b> = Huruf pengganti nilai yang belum diketahui ($x, y$)</div>
+                                <div class="bg-gray-50 px-3 py-2 rounded-lg text-xs font-medium text-gray-600 border border-gray-100"><b>Koefisien</b> = Angka yang menempel pada variabel ($a, b, p, q$)</div>
+                                <div class="bg-gray-50 px-3 py-2 rounded-lg text-xs font-medium text-gray-600 border border-gray-100"><b>Konstanta</b> = Angka yang berdiri sendiri ($c, r$)</div>
+                            </div>
+                        </div>
+                    `,
+                    contohSoal: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Contoh Memodelkan Soal</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Ubah ke bentuk matematika: "Harga 3 kemeja dan 2 celana adalah Rp 300.000"</h3>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-semibold mb-2">Pembahasan:</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Langkah pertama adalah membuat permisalan (variabel).<br><br>Misal:<br>$x$ = Harga 1 kemeja<br>$y$ = Harga 1 celana</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Maka, model matematikanya adalah:</p>
+                                <div class="font-mono font-bold text-[#1E3A8A] text-sm bg-white p-3 rounded-lg border border-gray-100">
+                                    $3x + 2y = 300.000$
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    title: "2. Penyelesaian SPLDV",
+                    videoId: "Hi4lfPqjeZY",
+                    penjelasan: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><span>⚔️</span> Metode Penyelesaian</h3>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed mb-4">Ada 3 cara utama untuk menemukan nilai $x$ dan $y$ secara aljabar:</p>
+                            <ul class="space-y-3 text-sm">
+                                <li class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                    <span class="text-xs font-bold text-[#1E3A8A] block mb-1">1. Eliminasi</span>
+                                    <span class="text-[11px] text-gray-600 font-medium">Menghilangkan salah satu variabel dengan cara menyamakan koefisiennya, lalu ditambah atau dikurang.</span>
+                                </li>
+                                <li class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                    <span class="text-xs font-bold text-[#1E3A8A] block mb-1">2. Substitusi</span>
+                                    <span class="text-[11px] text-gray-600 font-medium">Mengganti suatu variabel dengan persamaan dari variabel lainnya.</span>
+                                </li>
+                                <li class="p-3 bg-gray-50 rounded-xl border border-gray-100 border-l-4 border-l-blue-500">
+                                    <span class="text-xs font-bold text-[#1E3A8A] block mb-1">3. Campuran (Paling Disarankan)</span>
+                                    <span class="text-[11px] text-gray-600 font-medium">Melakukan <b>Eliminasi</b> untuk menemukan variabel pertama, lalu hasilnya di-<b>Substitusi</b>-kan untuk mencari variabel kedua. Jauh lebih cepat!</span>
+                                </li>
+                            </ul>
+                        </div>
+                    `,
+                    contohSoal: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Metode Campuran</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Tentukan himpunan penyelesaian dari:<br>$2x + y = 7$<br>$x - y = 2$</h3>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-semibold mb-2">Langkah 1: Eliminasi $y$</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Karena koefisien $y$ sudah sama, kita langsung jumlahkan kedua persamaan:</p>
+                                <div class="font-mono font-bold text-[#1E3A8A] text-[13px] bg-white p-3 rounded-lg border border-gray-100 overflow-x-auto leading-loose mb-4">
+                                    $2x + y = 7$<br>
+                                    $\\underline{\\phantom{2}x - y = 2} \\, +$<br>
+                                    $3x \\phantom{+ 0y} = 9$<br>
+                                    $\\phantom{3}x = 3$
+                                </div>
+                                
+                                <p class="text-xs text-gray-500 font-semibold mb-2">Langkah 2: Substitusi nilai $x$</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Masukkan nilai $x = 3$ ke persamaan kedua (pilih yang paling mudah):</p>
+                                <div class="font-mono font-bold text-[#1E3A8A] text-[13px] bg-white p-3 rounded-lg border border-gray-100 overflow-x-auto leading-loose">
+                                    $x - y = 2$<br>
+                                    $3 - y = 2$<br>
+                                    $-y = 2 - 3$<br>
+                                    $-y = -1 \\rightarrow y = 1$<br><br>
+                                    <span class="font-sans text-xs text-gray-500">Maka HP = ${(3, 1)}$</span>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    title: "3. Konsep SPLTV (3 Variabel)",
+                    videoId: "WMvUXMxOc24",
+                    penjelasan: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><span>🧊</span> Masuk ke Tiga Dimensi</h3>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed mb-4">Sistem Persamaan Linear Tiga Variabel (SPLTV) memiliki tiga persamaan dan tiga variabel (biasanya $x, y, z$). Secara visual, ini mewakili 3 buah bidang datar di ruang 3 Dimensi yang saling berpotongan di satu titik.</p>
+                            <div class="bg-blue-50 p-4 rounded-xl text-center font-mono text-blue-900 font-bold mb-4 border border-blue-100 leading-loose">
+                                $ax + by + cz = d$<br>
+                                $ex + fy + gz = h$<br>
+                                $ix + jy + kz = l$
+                            </div>
+                            <div class="bg-amber-50 p-4 rounded-xl border border-amber-100">
+                                <span class="text-[11px] font-bold text-amber-700 uppercase block mb-2">Strategi Ampuh Menyelesaikan SPLTV</span>
+                                <ol class="text-xs text-amber-900 font-medium space-y-2 list-decimal pl-4">
+                                    <li>Pilih 2 persamaan pertama, lalu <b>eliminasi 1 variabel</b> (misal $z$). Simpan hasilnya sebagai Persamaan (A).</li>
+                                    <li>Pilih 2 persamaan yang berbeda, lalu <b>eliminasi variabel yang sama</b> ($z$). Simpan hasilnya sebagai Persamaan (B).</li>
+                                    <li>Selesaikan Persamaan (A) dan (B) layaknya SPLDV biasa!</li>
+                                </ol>
+                            </div>
+                        </div>
+                    `,
+                    contohSoal: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Contoh Soal Lengkap</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Tentukan nilai $x, y, z$ dari sistem berikut:</h3>
+                            <div class="font-mono font-bold text-[#1E3A8A] text-xs bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4 leading-loose">
+                                (1) $x + y + z = 6$<br>
+                                (2) $2x - y + z = 3$<br>
+                                (3) $x + 2y - z = 2$
+                            </div>
+
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-3">
+                                <p class="text-xs text-gray-500 font-bold mb-2">Langkah 1: Eliminasi $z$ dari pers (1) & (3)</p>
+                                <div class="font-mono text-[#1E3A8A] text-[11px] font-bold bg-white p-2 rounded-lg border border-gray-100 overflow-x-auto leading-loose">
+                                    $\\phantom{+}x + y + z = 6$<br>
+                                    $\\underline{\\phantom{+}x + 2y - z = 2} \\, +$<br>
+                                    $2x + 3y = 8 \\quad \\dots \\text{(Persamaan 4)}$
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-3">
+                                <p class="text-xs text-gray-500 font-bold mb-2">Langkah 2: Eliminasi $z$ dari pers (2) & (3)</p>
+                                <div class="font-mono text-[#1E3A8A] text-[11px] font-bold bg-white p-2 rounded-lg border border-gray-100 overflow-x-auto leading-loose">
+                                    $\\phantom{+}2x - y + z = 3$<br>
+                                    $\\underline{\\phantom{+}x + 2y - z = 2} \\, +$<br>
+                                    $3x + y = 5 \\quad \\dots \\text{(Persamaan 5)}$
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-bold mb-2">Langkah 3: Selesaikan SPLDV (Pers 4 & 5)</p>
+                                <p class="text-[11px] text-gray-600 mb-2">Dari pers 5, kita ubah bentuknya: $y = 5 - 3x$<br>Substitusi ke pers 4:</p>
+                                <div class="font-mono text-[#1E3A8A] text-[11px] font-bold bg-white p-2 rounded-lg border border-gray-100 overflow-x-auto leading-loose">
+                                    $2x + 3(5 - 3x) = 8$<br>
+                                    $2x + 15 - 9x = 8$<br>
+                                    $-7x = 8 - 15$<br>
+                                    $-7x = -7 \\rightarrow x = 1$
+                                </div>
+                                <p class="text-[11px] text-gray-600 mt-2 mb-1">Cari nilai $y$ dan $z$:</p>
+                                <div class="font-mono text-[#1E3A8A] text-[11px] font-bold bg-white p-2 rounded-lg border border-gray-100 overflow-x-auto leading-loose">
+                                    $y = 5 - 3(1) \\rightarrow y = 2$<br>
+                                    $1 + 2 + z = 6 \\rightarrow z = 3$<br><br>
+                                    $\\text{Jawaban: } x=1, y=2, z=3$
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    title: "4. Pertidaksamaan Linear Dua Variabel",
+                    videoId: "rWmSq5XZz-g",
+                    penjelasan: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><span>🗺️</span> Dari Garis Menjadi Daerah</h3>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed mb-4">Jika persamaan linear (tanda $=$) menghasilkan visual berupa <b>Garis</b>, maka pertidaksamaan linear menghasilkan visual berupa <b>Daerah Arsiran</b> (Area) karena jawabannya lebih dari satu kemungkinan.</p>
+                            
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                    <span class="text-[11px] font-bold text-gray-700 block mb-1">Batas Tanda $\\le$ atau $\\ge$</span>
+                                    <p class="text-[11px] text-gray-500">Garis pada grafik digambar <b>TEGAS/PENUH</b> (artinya titik pada batas garis ikut menjadi jawaban).</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                    <span class="text-[11px] font-bold text-gray-700 block mb-1">Batas Tanda $<$ atau $>$</span>
+                                    <p class="text-[11px] text-gray-500">Garis pada grafik digambar <b>PUTUS-PUTUS</b> (artinya titik pada batas tidak dihitung).</p>
+                                </div>
+                                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
+                                    <span class="text-[11px] font-bold text-blue-800 block mb-1">Aturan Uji Titik Dasar</span>
+                                    <p class="text-[11px] text-blue-700">Untuk menentukan daerah mana yang diarsir (atas/bawah garis), gunakan <b>Uji Titik $(0,0)$</b>. Masukkan $x=0, y=0$. Jika bernilai BENAR, arsir daerah yang mengenai titik pusat.</p>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    contohSoal: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Contoh Soal & Uji Titik</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Tentukan daerah penyelesaian dari $2x + 3y \\ge 6$!</h3>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-bold mb-2">Langkah 1: Cari Titik Potong</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Anggap sebagai persamaan $2x + 3y = 6$.</p>
+                                <ul class="list-disc pl-4 text-xs text-gray-600 mb-4 space-y-1">
+                                    <li>Jika $x=0 \\rightarrow 3y=6 \\rightarrow y=2$ <b>(Titik 0,2)</b></li>
+                                    <li>Jika $y=0 \\rightarrow 2x=6 \\rightarrow x=3$ <b>(Titik 3,0)</b></li>
+                                </ul>
+                                
+                                <p class="text-xs text-gray-500 font-bold mb-2">Langkah 2: Uji Titik $(0,0)$</p>
+                                <p class="text-xs text-gray-600 leading-relaxed mb-2">Masukkan nilai $0$ ke dalam pertidaksamaan:</p>
+                                <div class="font-mono font-bold text-[#1E3A8A] text-xs bg-white p-3 rounded-lg border border-gray-100 overflow-x-auto leading-loose mb-3">
+                                    $2(0) + 3(0) \\ge 6$<br>
+                                    $0 \\ge 6 \\quad \\text{(Pernyataan SALAH)}$
+                                </div>
+                                <p class="text-xs text-gray-600 leading-relaxed"><b>Kesimpulan:</b> Karena $(0,0)$ salah, maka kita <b>arsir daerah yang MENJAUHI</b> titik $(0,0)$ (biasanya ke arah kanan/atas garis tersebut).</p>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    title: "5. Sistem Pertidaksamaan Linear (SPtLDV)",
+                    videoId: "W5bmNveXbG4",
+                    penjelasan: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2"><span>🎯</span> Daerah Himpunan Penyelesaian (DHP)</h3>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed mb-4">Sistem berarti terdiri dari gabungan <b>beberapa pertidaksamaan sekaligus</b>. DHP adalah sebuah area murni yang <b>memenuhi semua syarat</b> pertidaksamaan tersebut.</p>
+                            <div class="bg-blue-50 p-4 rounded-xl font-mono text-blue-900 font-bold border border-blue-100 text-sm text-center mb-4">
+                                DHP = Irisan dari Semua Daerah Arsiran
+                            </div>
+                            <div class="bg-amber-50 p-3 rounded-xl border border-amber-100">
+                                <span class="text-[10px] font-bold text-amber-700 uppercase block mb-1">Tips Menggambar Super Rapi!</span>
+                                <p class="text-[11px] text-amber-800 font-medium">Jika di sekolahmu disarankan, <b>arsirlah daerah yang SALAH</b>. Kenapa? Supaya DHP (Daerah Penyelesaian) yang benar adalah area yang terlihat <b>PALING BERSIH / KOSONG</b> di grafik. Ini mencegah grafiknya ruwet oleh coretan!</p>
+                            </div>
+                        </div>
+                    `,
+                    contohSoal: `
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Syarat Kuadran</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Apa arti dari syarat $x \\ge 0$ dan $y \\ge 0$?</h3>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-600 leading-relaxed">Dua syarat pertidaksamaan ini sangat wajib dipahami karena muncul di 99% soal Program Linear.</p>
+                                <ul class="list-disc pl-4 text-xs text-gray-600 mt-2 space-y-2">
+                                    <li>$x \\ge 0$ artinya area penyelesaian berada di <b>Kanan Sumbu-Y</b> (tidak boleh ada yang di area negatif X).</li>
+                                    <li>$y \\ge 0$ artinya area penyelesaian berada di <b>Atas Sumbu-X</b> (tidak boleh ada yang di area negatif Y).</li>
+                                </ul>
+                                <p class="text-xs text-blue-700 font-bold mt-3">Kesimpulan: DHP akan selalu terkurung di dalam area Kuadran I (Pojok Kanan Atas grafik).</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl card-shadow border border-blue-50 mt-4">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">Contoh Soal SPtLDV Lengkap</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3">Tentukan Daerah Himpunan Penyelesaian (DHP) dari sistem berikut:</h3>
+                            <div class="font-mono font-bold text-[#1E3A8A] text-xs bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4 leading-loose">
+                                $x + y \\le 4$<br>
+                                $2x + y \\le 6$<br>
+                                $x \\ge 0, y \\ge 0$
+                            </div>
+
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p class="text-xs text-gray-500 font-bold mb-2">Langkah 1: Titik Potong Sumbu</p>
+                                <ul class="list-disc pl-4 text-[11px] text-gray-600 mb-3 space-y-1">
+                                    <li>Garis 1 ($x + y = 4$): Titik potong di <b>(0, 4)</b> dan <b>(4, 0)</b>.</li>
+                                    <li>Garis 2 ($2x + y = 6$): Titik potong di <b>(0, 6)</b> dan <b>(3, 0)</b>.</li>
+                                </ul>
+
+                                <p class="text-xs text-gray-500 font-bold mb-2">Langkah 2: Uji Titik $(0,0)$</p>
+                                <ul class="list-disc pl-4 text-[11px] text-gray-600 mb-3 space-y-1">
+                                    <li>Substitusi ke $x + y \\le 4 \\rightarrow 0 \\le 4$ <b>(Benar)</b>. Daerah ke arah $(0,0)$.</li>
+                                    <li>Substitusi ke $2x + y \\le 6 \\rightarrow 0 \\le 6$ <b>(Benar)</b>. Daerah ke arah $(0,0)$.</li>
+                                </ul>
+
+                                <p class="text-xs text-gray-500 font-bold mb-2">Langkah 3: Titik Potong Kedua Garis (Eliminasi)</p>
+                                <div class="font-mono text-[#1E3A8A] text-[11px] font-bold bg-white p-2 rounded-lg border border-gray-100 overflow-x-auto leading-loose mb-3">
+                                    $\\phantom{+}2x + y = 6$<br>
+                                    $\\underline{\\phantom{+}x + y = 4} \\, -$<br>
+                                    $\\phantom{+}x \\phantom{+ 0} = 2$<br>
+                                    $2 + y = 4 \\rightarrow y = 2$ <br>
+                                    Titik potong garis: <b>(2, 2)</b>
+                                </div>
+
+                                <p class="text-xs text-gray-500 font-bold mb-2">Langkah 4: Menentukan DHP Akhir</p>
+                                <p class="text-[11px] text-gray-600 leading-relaxed">Gabungkan dengan syarat $x \\ge 0$ dan $y \\ge 0$ (Kuadran I). DHP adalah daerah irisan yang membentuk bangun segi empat di pojok kiri bawah grafik, yang dibatasi oleh titik-titik sudut: <b>(0, 0), (3, 0), (2, 2), dan (0, 4)</b>.</p>
+                            </div>
+                        </div>
+                    `
+                }
+            ]
+        };
+
+        // --- GEMINI API HELPERS ---
+        async function fetchWithRetry(url, options, retries = 5) {
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return await response.json();
+                    if (i === retries - 1) throw new Error(`Status: ${response.status}`);
+                } catch (err) {
+                    if (i === retries - 1) throw err;
+                    await new Promise(res => setTimeout(res, delays[i]));
+                }
+            }
+        }
+
+        // Format untuk teks user saja (Hanya styling bold/italic dasar)
+        function formatChatText(text) {
+            if(!text) return '';
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                .replace(/\*(.*?)\*/g, '<i>$1</i>')
+                .replace(/\n/g, '<br>');
+        }
+
+        // --- RENDER FUNCTIONS (HTML Generation) ---
+        
+        function renderHome() {
+            return `
+                <div class="p-6 pb-28 animate-page">
+                    <header class="flex justify-between items-center mb-6">
+                        <div class="bg-gray-100 p-2 rounded-lg smooth-btn cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                        </div>
+                        <h1 class="text-gray-500 font-semibold">Beranda</h1>
+                        <div class="relative smooth-btn cursor-pointer" onclick="showModal('Notifikasi', 'Tidak ada notifikasi baru untuk saat ini.', '📭')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+                        </div>
+                    </header>
+
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-[#1E3A8A]">Hi ${userName}!</h2>
+                        <p class="text-gray-400 text-sm font-medium">Selamat pagi, siap belajar?</p>
+                    </div>
+
+                    <div class="gradient-bg rounded-3xl p-5 mb-8 border border-blue-50 relative overflow-hidden card-shadow">
+                        <div class="z-10 relative">
+                             <img src="https://illustrations.popsy.co/blue/studying.svg" class="w-32 h-32 absolute -right-4 -top-4 opacity-80" alt="Illustration">
+                            <h3 class="text-lg font-bold text-[#1E3A8A] mb-1">Bab 1: Eksponen</h3>
+                            <div class="flex gap-3 text-[11px] text-blue-600 font-bold mb-4">
+                                <span>Poin: +50 XP</span>
+                                <span>•</span>
+                                <span>1 Topik</span>
+                                <span>•</span>
+                                <span>33 Menit</span>
+                            </div>
+                            <button onclick="openMateriDetail('Eksponen dan Logaritma')" class="bg-[#1E3A8A] text-white px-5 py-2.5 rounded-xl text-sm font-bold smooth-btn shadow-md">Lanjut Belajar</button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-[#1E3A8A]">Bab Progress</h3>
+                        <button onclick="changeTab('materi')" class="text-blue-500 text-xs font-bold smooth-btn">Lihat Semua</button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div onclick="openMateriDetail('Sistem Persamaan dan Pertidaksamaan Linear')" class="bg-white p-4 rounded-2xl border border-gray-100 flex items-center gap-4 card-shadow smooth-btn cursor-pointer">
+                            <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 font-bold text-lg">📊</div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-bold text-gray-800">Sistem Persamaan</h4>
+                                <p class="text-[10px] text-gray-400 font-medium">SPLDV & SPLTV</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] font-bold text-indigo-600 block">Baru!</span>
+                                <div class="w-16 h-1.5 bg-gray-100 rounded-full mt-1 overflow-hidden">
+                                    <div class="bg-indigo-500 h-full" style="width: 5%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div onclick="openMateriDetail('Eksponen dan Logaritma')" class="bg-white p-4 rounded-2xl border border-gray-100 flex items-center gap-4 card-shadow smooth-btn cursor-pointer">
+                            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 font-bold text-lg">1</div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-bold text-gray-800">Eksponen dan Logaritma</h4>
+                                <p class="text-[10px] text-gray-400 font-medium">Sifat & Definisi</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] font-bold text-blue-600 block">50 XP</span>
+                                <div class="w-16 h-1.5 bg-gray-100 rounded-full mt-1 overflow-hidden">
+                                    <div class="bg-blue-500 h-full" style="width: 25%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMateri() {
+            return `
+                <div class="p-6 animate-page min-h-full pb-28 relative">
+                    <div class="flex items-center gap-4 mb-6">
+                        <h1 class="text-xl font-bold text-[#1E3A8A]">Kurikulum Mandiri</h1>
+                    </div>
+
+                    <!-- Custom Tab Bar (Menu Kelas) -->
+                    <div class="relative flex bg-[#E8EEFF] p-1.5 rounded-full mb-6 shadow-inner">
+                        <!-- Sliding Indicator -->
+                        <div class="absolute inset-0 p-1.5 flex pointer-events-none">
+                            <div id="materi-tab-indicator" class="w-1/3 bg-gradient-to-r from-[#6373E5] to-[#4F5DC9] rounded-full shadow-md transition-transform duration-300 ease-out" style="transform: translateX(${activeMateriTab === 'Kelas X' ? '0' : activeMateriTab === 'Kelas XI' ? '100%' : '200%'})"></div>
+                        </div>
+                        
+                        <button onclick="setMateriTab('Kelas X')" id="tab-kelas-x" class="flex-1 relative z-10 py-2.5 text-[13px] font-bold rounded-full transition-colors duration-300 ${activeMateriTab === 'Kelas X' ? 'text-white' : 'text-[#6B7C93]'}">Kelas X</button>
+                        <button onclick="setMateriTab('Kelas XI')" id="tab-kelas-xi" class="flex-1 relative z-10 py-2.5 text-[13px] font-bold rounded-full transition-colors duration-300 ${activeMateriTab === 'Kelas XI' ? 'text-white' : 'text-[#6B7C93]'}">Kelas XI</button>
+                        <button onclick="setMateriTab('Kelas XII')" id="tab-kelas-xii" class="flex-1 relative z-10 py-2.5 text-[13px] font-bold rounded-full transition-colors duration-300 ${activeMateriTab === 'Kelas XII' ? 'text-white' : 'text-[#6B7C93]'}">Kelas XII</button>
+                    </div>
+
+                    <div id="materi-content-area" class="transition-opacity duration-200">
+                        ${getMateriContent(activeMateriTab)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getMateriContent(kelas) {
+            const items = materiData[kelas];
+            return `
+                <div class="animate-page space-y-3">
+                    ${items.map(item => `
+                        <button onclick="openMateriDetail('${item.title}')" class="w-full text-left flex items-center gap-4 p-4 bg-white border border-gray-100 rounded-2xl card-shadow smooth-btn hover:border-blue-300">
+                            <div class="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-xl shrink-0">${item.icon}</div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-bold text-gray-800 truncate">${item.title}</h4>
+                                <p class="text-[10px] text-gray-400 truncate font-medium">${item.desc}</p>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" class="shrink-0"><path d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function setMateriTab(kelas) {
+            activeMateriTab = kelas;
+
+            document.getElementById('tab-kelas-x').className = `flex-1 relative z-10 py-2.5 text-[13px] font-bold rounded-full transition-colors duration-300 ${activeMateriTab === 'Kelas X' ? 'text-white' : 'text-[#6B7C93]'}`;
+            document.getElementById('tab-kelas-xi').className = `flex-1 relative z-10 py-2.5 text-[13px] font-bold rounded-full transition-colors duration-300 ${activeMateriTab === 'Kelas XI' ? 'text-white' : 'text-[#6B7C93]'}`;
+            document.getElementById('tab-kelas-xii').className = `flex-1 relative z-10 py-2.5 text-[13px] font-bold rounded-full transition-colors duration-300 ${activeMateriTab === 'Kelas XII' ? 'text-white' : 'text-[#6B7C93]'}`;
+
+            const indicator = document.getElementById('materi-tab-indicator');
+            if (kelas === 'Kelas X') indicator.style.transform = 'translateX(0)';
+            else if (kelas === 'Kelas XI') indicator.style.transform = 'translateX(100%)';
+            else if (kelas === 'Kelas XII') indicator.style.transform = 'translateX(200%)';
+
+            const contentArea = document.getElementById('materi-content-area');
+            contentArea.style.opacity = 0;
+            setTimeout(() => {
+                contentArea.innerHTML = getMateriContent(kelas);
+                contentArea.style.opacity = 1;
+            }, 150);
+        }
+
+        function openMateriDetail(title) {
+            if (detailMateriData[title]) {
+                activeDetailTopicTitle = title;
+                activeDetailSubTopic = 0; // Reset subtopic ke awal
+                activeDetailTab = 'penjelasan'; // Reset tab ke penjelasan
+                
+                currentHistory.push(currentActiveTab);
+                changeTab('materi-detail', false);
+            } else {
+                showModal('Sedang Disusun', `Materi "${title}" sedang dalam tahap penyusunan oleh tim. Tunggu update-nya ya!`, '📚');
+            }
+        }
+
+        function renderMateriDetail() {
+            const subTopics = detailMateriData[activeDetailTopicTitle];
+            
+            return `
+                <div class="p-6 animate-page min-h-full pb-28 relative bg-white">
+                    <header class="flex items-center gap-4 mb-6 sticky top-0 bg-white z-10 py-2">
+                        <button onclick="goBack()" class="p-2 bg-gray-50 rounded-xl smooth-btn border border-gray-100 shadow-sm shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <h1 class="text-sm font-bold text-[#1E3A8A] leading-tight truncate">${activeDetailTopicTitle}</h1>
+                    </header>
+
+                    <!-- Dropdown Sub-Materi -->
+                    <div class="mb-5 relative z-0">
+                        <label class="block text-[11px] font-bold text-gray-500 mb-2 uppercase tracking-wider">Topik Belajar</label>
+                        <div class="relative">
+                            <select onchange="changeDetailSubTopic(this.value)" class="w-full bg-white border-2 border-blue-100 text-[#1E3A8A] py-3.5 px-4 rounded-xl text-sm font-bold shadow-sm focus:outline-none focus:border-blue-400 appearance-none smooth-btn cursor-pointer">
+                                ${subTopics.map((item, idx) => `<option value="${idx}" ${activeDetailSubTopic === idx ? 'selected' : ''}>${item.title}</option>`).join('')}
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-blue-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-Menu Tabs -->
+                    <div class="flex gap-2 mb-6 bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
+                        <button onclick="setDetailTab('penjelasan')" id="tab-penjelasan" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 ${activeDetailTab === 'penjelasan' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-400'}">Penjelasan</button>
+                        <button onclick="setDetailTab('contoh-soal')" id="tab-contoh-soal" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 ${activeDetailTab === 'contoh-soal' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-400'}">Contoh Soal</button>
+                        <button onclick="setDetailTab('video')" id="tab-video" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 ${activeDetailTab === 'video' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-400'}">Video</button>
+                    </div>
+
+                    <div id="detail-content-area" class="transition-opacity duration-200">
+                        ${getDetailContent(activeDetailTab)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getDetailContent(tab) {
+            const data = detailMateriData[activeDetailTopicTitle][activeDetailSubTopic];
+            
+            if (tab === 'penjelasan') {
+                return `<div class="animate-page space-y-4">${data.penjelasan}</div>`;
+            } else if (tab === 'contoh-soal') {
+                return `<div class="animate-page space-y-4">${data.contohSoal}</div>`;
+            } else if (tab === 'video') {
+                let videoHtml = `
+                    <div class="bg-white p-4 rounded-2xl card-shadow border border-blue-50 mb-4">
+                        <a href="https://www.youtube.com/watch?v=${data.videoId}" target="_blank" class="block rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer">
+                            <img src="https://img.youtube.com/vi/${data.videoId}/hqdefault.jpg" alt="Thumbnail Video YouTube" class="w-full h-auto aspect-video object-cover transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center transition-colors group-hover:bg-black/50">
+                                <div class="w-14 h-14 bg-[#FF0000] rounded-full flex items-center justify-center mb-2 shadow-lg group-hover:scale-110 transition-transform">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                </div>
+                                <span class="text-white font-bold text-sm bg-black/60 px-4 py-1.5 rounded-full backdrop-blur-sm shadow-md">Tonton video di YouTube</span>
+                            </div>
+                        </a>
+                        <div class="mt-4 px-2">
+                            <h3 class="font-bold text-gray-800 text-sm">${data.title}</h3>
+                            <p class="text-[11px] text-gray-500 font-medium mt-1 leading-relaxed">Video selengkapnya dari YouTube. Tonton agar makin paham dengan rumusnya!</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Tambahkan video kedua jika ada (contoh: di materi eksponen)
+                if (data.videoId2) {
+                    videoHtml += `
+                        <div class="bg-white p-4 rounded-2xl card-shadow border border-blue-50 mb-4">
+                            <a href="https://www.youtube.com/watch?v=${data.videoId2}" target="_blank" class="block rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer">
+                                <img src="https://img.youtube.com/vi/${data.videoId2}/hqdefault.jpg" alt="Thumbnail Video YouTube" class="w-full h-auto aspect-video object-cover transition-transform duration-300 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center transition-colors group-hover:bg-black/50">
+                                    <div class="w-14 h-14 bg-[#FF0000] rounded-full flex items-center justify-center mb-2 shadow-lg group-hover:scale-110 transition-transform">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                    </div>
+                                    <span class="text-white font-bold text-sm bg-black/60 px-4 py-1.5 rounded-full backdrop-blur-sm shadow-md">Tonton Lanjutan (Part 2)</span>
+                                </div>
+                            </a>
+                            <div class="mt-4 px-2">
+                                <h3 class="font-bold text-gray-800 text-sm">Fungsi Eksponen & Peluruhan</h3>
+                                <p class="text-[11px] text-gray-500 font-medium mt-1 leading-relaxed">Video bagian kedua tentang grafik fungsi monoton naik/turun dan penerapannya.</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `<div class="animate-page">${videoHtml}</div>`;
+            }
+        }
+
+        function changeDetailSubTopic(index) {
+            activeDetailSubTopic = parseInt(index);
+            setDetailTab('penjelasan'); 
+        }
+
+        function setDetailTab(tab) {
+            activeDetailTab = tab;
+            ['penjelasan', 'contoh-soal', 'video'].forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if (el) {
+                    el.className = t === tab 
+                        ? 'flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 bg-white shadow-sm text-blue-600 border border-gray-100' 
+                        : 'flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 text-gray-400';
+                }
+            });
+            
+            const contentArea = document.getElementById('detail-content-area');
+            contentArea.style.opacity = 0;
+            setTimeout(() => {
+                contentArea.innerHTML = getDetailContent(tab);
+                contentArea.style.opacity = 1;
+                
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    MathJax.typesetPromise([contentArea]).catch(e => console.error(e));
+                }
+            }, 200);
+        }
+
+        // --- RENDER KUIS (PENGGANTI STATISTIK) ---
+
+        function renderKuisList() {
+            return `
+                <div class="p-6 animate-page min-h-full pb-28 relative">
+                    <div class="flex items-center gap-4 mb-6">
+                        <h1 class="text-xl font-bold text-[#1E3A8A]">Kuis Latihan</h1>
+                    </div>
+
+                    <!-- Custom Tab Bar (Menu Kelas Kuis) -->
+                    <div class="relative flex bg-[#E8EEFF] p-1.5 rounded-full mb-6 shadow-inner">
+                        <!-- Sliding Indicator -->
+                        <div class="absolute inset-0 p-1.5 flex pointer-events-none">
+                            <div id="kuis-tab-indicator" class="w-1/3 bg-gradient-to-r from-[#6373E5] to-[#4F5DC9] rounded-full shadow-md transition-transform duration-300 ease-out" style="transform: translateX(${activeKuisTab === 'Kelas X' ? '0' : activeKuisTab === 'Kelas XI' ? '100%' : '200%'})"></div>
+                        </div>
+                        
+                        <button onclick="setKuisTab('Kelas X')" id="tab-kuis-x" class="flex-1 relative z-10 py-2.5 text-[13px] font-bold rounded-full transition-colors duration-300 ${activeKuisTab === 'Kelas X' ? 'text-white' : 'text-[#6B7C93]'}">Kelas X</button>
+                        <button onclick="setKuisTab('Kelas XI')" id="tab-kuis-xi" class="flex-1 relative z-10 py-2.5 text-[13px] font-bold rounded-full transition-colors duration-300 ${activeKuisTab === 'Kelas XI' ? 'text-white' : 'text-[#6B7C93]'}">Kelas XI</button>
+                        <button onclick="setKuisTab('Kelas XII')" id="tab-kuis-xii" class="flex-1 relative z-10 py-2.5 text-[13px] font-bold rounded-full transition-colors duration-300 ${activeKuisTab === 'Kelas XII' ? 'text-white' : 'text-[#6B7C93]'}">Kelas XII</button>
+                    </div>
+
+                    <div id="kuis-content-area" class="transition-opacity duration-200">
+                        ${getKuisContent(activeKuisTab)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getKuisContent(kelas) {
+            const items = kuisData[kelas];
+            if (!items) return '<p class="text-center text-gray-400 mt-10 text-sm">Belum ada kuis untuk kelas ini.</p>';
+            
+            return `
+                <div class="animate-page space-y-3">
+                    ${items.map((item, index) => `
+                        <button onclick="openKuis('${kelas}', ${index})" class="w-full text-left flex items-center gap-4 p-4 bg-white border border-gray-100 rounded-2xl card-shadow smooth-btn">
+                            <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-xl shrink-0 border border-indigo-100">${item.icon}</div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-bold text-gray-800 truncate">${item.title}</h4>
+                                <p class="text-[10px] text-gray-400 truncate font-medium mt-0.5">${item.desc}</p>
+                            </div>
+                            <span class="text-xs font-bold text-blue-500 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">Mulai Kuis</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function setKuisTab(kelas) {
+            activeKuisTab = kelas;
+
+            // Update warna teks tombol kuis
+            document.getElementById('tab-kuis-x').className = `flex-1 relative z-10 py-2.5 text-[13px] font-bold rounded-full transition-colors duration-300 ${activeKuisTab === 'Kelas X' ? 'text-white' : 'text-[#6B7C93]'}`;
+            document.getElementById('tab-kuis-xi').className = `flex-1 relative z-10 py-2.5 text-[13px] font-bold rounded-full transition-colors duration-300 ${activeKuisTab === 'Kelas XI' ? 'text-white' : 'text-[#6B7C93]'}`;
+            document.getElementById('tab-kuis-xii').className = `flex-1 relative z-10 py-2.5 text-[13px] font-bold rounded-full transition-colors duration-300 ${activeKuisTab === 'Kelas XII' ? 'text-white' : 'text-[#6B7C93]'}`;
+
+            // Pindahkan posisi indikator biru
+            const indicator = document.getElementById('kuis-tab-indicator');
+            if (kelas === 'Kelas X') indicator.style.transform = 'translateX(0)';
+            else if (kelas === 'Kelas XI') indicator.style.transform = 'translateX(100%)';
+            else if (kelas === 'Kelas XII') indicator.style.transform = 'translateX(200%)';
+
+            // Ubah konten dengan transisi halus
+            const contentArea = document.getElementById('kuis-content-area');
+            contentArea.style.opacity = 0;
+            setTimeout(() => {
+                contentArea.innerHTML = getKuisContent(kelas);
+                contentArea.style.opacity = 1;
+            }, 150);
+        }
+
+        function openKuis(kelas, index) {
+            currentKuisTopicData = kuisData[kelas][index];
+            currentKuisQIndex = 0;
+            currentKuisScore = 0;
+            kuisHasAnswered = false;
+            selectedKuisOption = null;
+            
+            currentHistory.push(currentActiveTab);
+            changeTab('kuis-detail', false);
+        }
+
+        function renderKuisDetail() {
+            if (!currentKuisTopicData) return '';
+
+            // Jika Kuis Selesai (Semua soal sudah dijawab)
+            if (currentKuisQIndex >= currentKuisTopicData.questions.length) {
+                const totalQ = currentKuisTopicData.questions.length;
+                const finalScore = Math.round((currentKuisScore / totalQ) * 100);
+                const isPerfect = finalScore === 100;
+                
+                if(isPerfect && !currentKuisTopicData.alreadyClaimedXP) {
+                    userXP += 50; 
+                    currentKuisTopicData.alreadyClaimedXP = true; // Supaya tidak bisa farming XP
+                }
+
+                return `
+                    <div class="p-6 animate-page min-h-full pb-28 relative bg-white flex flex-col items-center justify-center text-center">
+                        <div class="w-24 h-24 rounded-full flex items-center justify-center text-5xl mb-6 shadow-lg border-4 border-white ${isPerfect ? 'bg-green-100 border-green-200' : 'bg-blue-100 border-blue-200'}">
+                            ${isPerfect ? '🏆' : '👍'}
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">${isPerfect ? 'Luar Biasa!' : 'Kerja Bagus!'}</h2>
+                        <p class="text-sm text-gray-500 font-medium mb-8">Kamu mendapatkan skor akhir:</p>
+                        
+                        <div class="text-5xl font-black text-[#1E3A8A] mb-2">${finalScore}</div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-8">DARI 100 POIN</p>
+                        
+                        ${isPerfect ? '<p class="text-sm font-bold text-green-600 bg-green-50 px-4 py-2 rounded-xl mb-8">+50 XP Ditambahkan ke Profilmu!</p>' : '<p class="text-sm font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-xl mb-8">Dapatkan nilai 100 untuk bonus XP!</p>'}
+                        
+                        <button onclick="goBack()" class="w-full max-w-xs py-4 bg-gradient-to-r from-blue-600 to-[#1E3A8A] text-white font-bold rounded-2xl shadow-lg shadow-blue-900/30 smooth-btn">Kembali ke Daftar Kuis</button>
+                    </div>
+                `;
+            }
+
+            // Render Pertanyaan Saat Ini
+            const qData = currentKuisTopicData.questions[currentKuisQIndex];
+            const totalQ = currentKuisTopicData.questions.length;
+            
+            let optionsHtml = '';
+            for (let optKey in qData.options) {
+                let btnStyle = 'border-gray-100 bg-white hover:border-blue-300 text-gray-600';
+                
+                // Evaluasi Real-Time Style
+                if (kuisHasAnswered) {
+                    if (optKey === qData.correct) {
+                        btnStyle = 'border-green-500 bg-green-50 text-green-700 shadow-md shadow-green-100 pointer-events-none';
+                    } else if (optKey === selectedKuisOption && optKey !== qData.correct) {
+                        btnStyle = 'border-red-500 bg-red-50 text-red-700 shadow-md shadow-red-100 pointer-events-none';
+                    } else {
+                        btnStyle = 'border-gray-100 bg-white opacity-50 pointer-events-none';
+                    }
+                }
+
+                optionsHtml += `
+                    <button onclick="answerKuis('${optKey}')" class="w-full text-left p-4 rounded-xl border-2 text-sm font-semibold transition-all duration-300 ${btnStyle}">
+                        <span class="uppercase mr-2 font-bold opacity-70">${optKey}.</span> ${qData.options[optKey]}
+                    </button>
+                `;
+            }
+
+            let feedbackHtml = '';
+            if (kuisHasAnswered) {
+                const isCorrect = selectedKuisOption === qData.correct;
+                feedbackHtml = `
+                    <div class="mt-6 p-5 rounded-2xl border ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} animate-page">
+                        <h4 class="font-bold text-sm mb-2 flex items-center gap-2 ${isCorrect ? 'text-green-800' : 'text-red-800'}">
+                            ${isCorrect ? '✅ Jawaban Benar!' : '❌ Jawaban Kurang Tepat'}
+                        </h4>
+                        <div class="text-xs font-medium leading-relaxed ${isCorrect ? 'text-green-700' : 'text-red-700'}">
+                            <b>Pembahasan:</b><br><br>
+                            ${qData.explanation}
+                        </div>
+                    </div>
+                    <button onclick="nextKuisQuestion()" class="w-full mt-6 py-4 bg-[#1E3A8A] text-white font-bold rounded-2xl shadow-lg shadow-blue-900/30 smooth-btn tracking-wide animate-page">Lanjut Soal Berikutnya</button>
+                `;
+            }
+
+            return `
+                <div class="p-6 animate-page min-h-full pb-28 relative bg-white" id="kuis-detail-area">
+                    <header class="flex items-center justify-between mb-8">
+                        <button onclick="goBack()" class="p-2 bg-gray-50 rounded-xl smooth-btn border border-gray-100 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <div class="bg-blue-50 px-4 py-1.5 rounded-full flex items-center gap-2 shadow-inner border border-blue-100">
+                            <span class="text-[10px] font-bold text-blue-600 tracking-wider">SOAL ${currentKuisQIndex + 1} DARI ${totalQ}</span>
+                        </div>
+                    </header>
+                    
+                    <div class="bg-white p-6 rounded-2xl card-shadow border border-blue-50 mb-6">
+                        <h3 class="font-bold text-gray-800 text-[15px] leading-relaxed">${qData.q}</h3>
+                    </div>
+
+                    <div class="space-y-3">
+                        ${optionsHtml}
+                    </div>
+
+                    ${feedbackHtml}
+                </div>
+            `;
+        }
+
+        function answerKuis(selectedOpt) {
+            if (kuisHasAnswered) return; // Cegah double tap
+            
+            selectedKuisOption = selectedOpt;
+            kuisHasAnswered = true;
+            
+            const qData = currentKuisTopicData.questions[currentKuisQIndex];
+            if (selectedOpt === qData.correct) {
+                currentKuisScore++;
+            }
+            
+            // Re-render hanya bagian konten untuk menampilkan feedback dan warna tanpa mengacaukan riwayat
+            const contentArea = document.getElementById('content-area');
+            contentArea.innerHTML = renderKuisDetail();
+            
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                MathJax.typesetPromise([contentArea]).catch(e => console.error(e));
+            }
+        }
+
+        function nextKuisQuestion() {
+            currentKuisQIndex++;
+            kuisHasAnswered = false;
+            selectedKuisOption = null;
+            
+            const contentArea = document.getElementById('content-area');
+            contentArea.innerHTML = renderKuisDetail();
+            contentArea.scrollTop = 0;
+            
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                MathJax.typesetPromise([contentArea]).catch(e => console.error(e));
+            }
+        }
+
+        // --- RENDER TANYA AI (PREMIUM CHAT UI) ---
+        function renderTanyaAI() {
+            let previewHtml = currentChatImage 
+                ? `<div id="chat-image-preview-container" class="absolute bottom-[100%] left-4 bg-white p-2 rounded-xl shadow-lg border border-gray-100 mb-2 transition-all">
+                    <div class="relative">
+                        <img id="chat-image-preview" src="${currentChatImage}" class="h-20 w-auto rounded-lg object-cover border border-gray-200">
+                        <button onclick="removeChatImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-sm hover:scale-105">×</button>
+                    </div>
+                   </div>`
+                : `<div id="chat-image-preview-container" class="hidden absolute bottom-[100%] left-4 bg-white p-2 rounded-xl shadow-lg border border-gray-100 mb-2 transition-all">
+                    <div class="relative">
+                        <img id="chat-image-preview" src="" class="h-20 w-auto rounded-lg object-cover border border-gray-200">
+                        <button onclick="removeChatImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-sm hover:scale-105">×</button>
+                    </div>
+                   </div>`;
+
+            return `
+                <div class="flex flex-col h-full animate-page pb-24 pt-6 px-4 bg-gray-50 relative">
+                    <div class="flex items-center justify-between mb-4 bg-white p-4 rounded-2xl shadow-sm border border-blue-50 z-10 relative">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-2xl shadow-md border-2 border-white">🤖</div>
+                            <div>
+                                <h2 class="text-sm font-bold text-[#1E3A8A] flex items-center gap-1">Tutor AI MantApp <span class="bg-amber-100 text-amber-700 text-[9px] px-1.5 py-0.5 rounded-md uppercase tracking-wider">Premium</span></h2>
+                                <p class="text-[10px] text-green-500 font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full inline-block animate-pulse"></span> Bisa Baca Foto Soal 📷</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="clearChat()" class="text-gray-400 bg-gray-50 p-2.5 rounded-xl border border-gray-100 smooth-btn hover:text-red-500 hover:bg-red-50 transition-colors" title="Hapus Riwayat">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto no-scrollbar flex flex-col gap-4 mb-2 px-1" id="chat-container">
+                        ${chatMessages.map((msg, index) => `
+                            <div class="flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-page">
+                                <div id="msg-${index}" class="max-w-[85%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-gradient-to-r from-blue-600 to-[#1E3A8A] text-white rounded-br-sm shadow-md' : 'chat-ai-premium text-gray-800 rounded-bl-sm prose'} text-sm leading-relaxed overflow-x-auto">
+                                    ${msg.image && msg.role === 'user' ? `<img src="${msg.image}" class="max-w-full rounded-lg mb-2 border border-blue-400/50 shadow-sm">` : ''}
+                                    ${msg.role === 'user' ? formatChatText(msg.text) : (msg.isLoading ? '<div class="flex space-x-1 items-center h-4"><div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div><div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div><div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div></div>' : (typeof marked !== 'undefined' ? marked.parse(msg.text) : msg.text))}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="absolute bottom-20 left-0 w-full px-4 bg-transparent pt-2 z-20">
+                        ${previewHtml}
+                        <div class="relative bg-white p-2 rounded-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.05)] border border-gray-100 flex items-center gap-2">
+                            <input type="file" id="chat-image-upload" class="hidden" accept="image/*" onchange="handleChatImageUpload(event)">
+                            <button onclick="document.getElementById('chat-image-upload').click()" class="p-2.5 text-gray-500 bg-gray-50 rounded-xl hover:text-blue-600 hover:bg-blue-50 transition-colors shrink-0 smooth-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                            </button>
+                            <input type="text" id="chat-input" placeholder="Tanya soal / upload foto..." class="w-full bg-transparent border-none py-2 px-2 text-sm font-medium focus:outline-none transition-colors" onkeypress="if(event.key === 'Enter') sendChat()">
+                            <button onclick="sendChat()" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-2.5 rounded-xl smooth-btn shadow-md hover:scale-105 shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- MATH RENDERER, UPLOAD & STREAMING LOGIC ---
+
+        function handleChatImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const max_dim = 800; // Kompresi agar base64 tidak berat
+                        
+                        if (width > height && width > max_dim) {
+                            height *= max_dim / width;
+                            width = max_dim;
+                        } else if (height > max_dim) {
+                            width *= max_dim / height;
+                            height = max_dim;
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        currentChatImage = canvas.toDataURL('image/jpeg', 0.6); 
+                        
+                        const previewCont = document.getElementById('chat-image-preview-container');
+                        const previewImg = document.getElementById('chat-image-preview');
+                        if (previewCont && previewImg) {
+                            previewImg.src = currentChatImage;
+                            previewCont.classList.remove('hidden');
+                        }
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeChatImage() {
+            currentChatImage = null;
+            const previewCont = document.getElementById('chat-image-preview-container');
+            const fileInput = document.getElementById('chat-image-upload');
+            if (previewCont) previewCont.classList.add('hidden');
+            if (fileInput) fileInput.value = '';
+        }
+        
+        // Memaksa render format MathJax secara menyeluruh pada kontainer
+        function renderAllMath() {
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                const container = document.getElementById('chat-container');
+                if (container) {
+                    MathJax.typesetPromise([container]).catch(e => console.error("MathJax error:", e));
+                }
+            }
+        }
+
+        // Efek mesin ketik untuk pesan AI baru
+        async function streamResponse(fullText, msgIndex) {
+            const el = document.getElementById(`msg-${msgIndex}`);
+            if (!el) return;
+            let currentText = "";
+            const chunkSize = 3; 
+            
+            for (let i = 0; i < fullText.length; i += chunkSize) {
+                currentText += fullText.substring(i, i + chunkSize);
+                el.innerHTML = currentText.replace(/\n/g, '<br>') + '<span class="inline-block w-1.5 h-4 ml-1 bg-blue-500 animate-pulse"></span>';
+                
+                const container = document.getElementById('chat-container');
+                if(container) container.scrollTop = container.scrollHeight;
+                
+                await new Promise(r => setTimeout(r, 15)); 
+            }
+            
+            // Format penuh setelah ketik selesai
+            if (typeof marked !== 'undefined') {
+                el.innerHTML = marked.parse(fullText);
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    MathJax.typesetPromise([el]).then(() => {
+                        const container = document.getElementById('chat-container');
+                        if(container) container.scrollTop = container.scrollHeight;
+                    });
+                }
+            } else {
+                el.innerHTML = fullText;
+            }
+        }
+
+        function checkRateLimit() {
+            const now = Date.now();
+            if (now - userRateLimit.timestamp > 60000) { 
+                userRateLimit = { count: 1, timestamp: now };
+                localStorage.setItem('mantapp_ratelimit', JSON.stringify(userRateLimit));
+                return true;
+            }
+            if (userRateLimit.count >= 5) {
+                return false;
+            }
+            userRateLimit.count++;
+            localStorage.setItem('mantapp_ratelimit', JSON.stringify(userRateLimit));
+            return true;
+        }
+
+        function clearChat() {
+            chatMessages = [
+                { role: 'ai', text: `Riwayat obrolan dibersihkan. Halo **${userName}**! Ketik soal, rumus, atau upload foto soalmu di sini ya! ✨` }
+            ];
+            localStorage.setItem(getHistoryKey(), JSON.stringify(chatMessages));
+            changeTab('tanya-ai', false);
+        }
+
+        async function sendChat() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            
+            // Cek apakah teks atau gambar ada yang diisi
+            if(!text && !currentChatImage) return;
+
+            if(!checkRateLimit()) {
+                showModal('Limit Tercapai', 'Kamu bertanya terlalu cepat! Tunggu 1 menit ya (Limit: 5 Pesan/Menit).', '⏳');
+                return;
+            }
+            
+            // Simpan gambar & teks di pesan pengguna
+            chatMessages.push({ role: 'user', text: text, image: currentChatImage });
+            input.value = '';
+            
+            // Bersihkan uploadan gambar setelah dikirim
+            currentChatImage = null; 
+            
+            changeTab('tanya-ai', false);
+
+            // Indikator loading AI
+            const aiMsgIndex = chatMessages.length;
+            chatMessages.push({ role: 'ai', text: '', isLoading: true });
+            changeTab('tanya-ai', false);
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                
+                const contents = chatMessages
+                    .filter(m => !m.isLoading && (m.text !== '' || m.image))
+                    .map(m => {
+                        let parts = [];
+                        if (m.text) parts.push({ text: m.text });
+                        if (m.image) {
+                            let base64Data = m.image.split(',')[1];
+                            let mimeType = m.image.match(/data:(.*?);/)[1];
+                            parts.push({ inlineData: { mimeType: mimeType, data: base64Data } });
+                        }
+                        return { role: m.role === 'ai' ? 'model' : 'user', parts: parts };
+                    });
+                
+                const payload = {
+                    contents: contents,
+                    systemInstruction: {
+                        parts: [{ text: "Kamu adalah Tutor AI MantApp Premium, ahli matematika tingkat dewa. ATURAN WAJIB:\n1. JIKA diberikan GAMBAR/FOTO, baca dengan teliti angka dan teks di dalam gambar tersebut untuk menyelesaikannya.\n2. SESUAIKAN GAYA JAWABAN: Jika pertanyaan berupa soal hitungan, perhitungan, atau persamaan matematis langsung, SELESAIKAN SECARA LANGSUNG (jangan membuat model cerita/permisalan). NAMUN JIKA pertanyaan berupa SOAL CERITA, maka langkah pertama WAJIB ubah menjadi MODEL MATEMATIKA (Misal: 'Misalkan $x$ = ...').\n3. WAJIB gunakan format LaTeX untuk SEMUA rumus, variabel, dan angka matematika. Gunakan $...$ untuk inline, dan $$...$$ untuk blok rumus.\n4. Jelaskan langkah demi langkah secara logis dan tepat.\n5. Bahasa santai, ramah, memotivasi, gunakan sapaan 'kamu'." }]
+                    }
+                };
+
+                const data = await fetchWithRetry(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                
+                chatMessages[aiMsgIndex] = { role: 'ai', text: aiResponse, isLoading: false };
+                localStorage.setItem(getHistoryKey(), JSON.stringify(chatMessages)); 
+                
+                changeTab('tanya-ai', false); 
+                setTimeout(() => {
+                    renderAllMath(); 
+                    streamResponse(aiResponse, aiMsgIndex); 
+                }, 100);
+
+            } catch (error) {
+                chatMessages[aiMsgIndex] = { role: 'ai', text: 'Waduh, koneksi ke otak AI sedang gangguan nih. Coba tanya lagi ya!', isLoading: false };
+                changeTab('tanya-ai', false);
+            }
+        }
+
+        // --- RENDER PROFILE ---
+
+        function renderProfile() {
+            return `
+                <div class="p-6 flex flex-col items-center h-full mt-4 animate-page pb-28">
+                    <div class="relative mb-4 mt-2">
+                        <input type="file" id="file-upload" class="hidden" accept="image/*" onchange="handleImageUpload(event)">
+                        <img src="${profileImg}" class="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover">
+                        <div onclick="document.getElementById('file-upload').click()" class="absolute bottom-0 right-0 bg-blue-500 p-2 rounded-full border-2 border-white text-white shadow-md smooth-btn cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-[#1E3A8A] mb-1">${userName}</h2>
+                    <p class="text-xs text-gray-500 font-bold uppercase tracking-widest bg-gray-100 px-3 py-1 rounded-lg mt-1">${userClass}</p>
+                    
+                    <div class="flex gap-4 mt-6 w-full max-w-sm">
+                        <div class="flex-1 bg-white p-4 rounded-2xl border border-blue-50 card-shadow text-center">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Total XP</p>
+                            <p class="text-xl font-bold text-blue-600">${userXP}</p>
+                        </div>
+                        <div class="flex-1 bg-white p-4 rounded-2xl border border-blue-50 card-shadow text-center">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Peringkat</p>
+                            <p class="text-xl font-bold text-blue-600">#4</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 w-full max-w-sm mt-8 text-left">
+                        <h3 class="font-bold text-gray-800 mb-3 px-1 text-xs uppercase tracking-wider">Pengaturan Akun</h3>
+                        
+                        <button onclick="currentHistory.push(currentActiveTab); changeTab('edit-profile', false);" class="w-full flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 card-shadow smooth-btn">
+                            <div class="flex items-center gap-3"><span class="text-lg bg-blue-50 p-2 rounded-xl border border-blue-100">👤</span> <span class="font-bold text-sm text-gray-700">Ubah Data Diri</span></div>
+                            <span class="text-gray-400 font-bold">›</span>
+                        </button>
+                        
+                        <button onclick="currentHistory.push(currentActiveTab); changeTab('notifikasi', false);" class="w-full flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 card-shadow smooth-btn">
+                            <div class="flex items-center gap-3"><span class="text-lg bg-amber-50 p-2 rounded-xl border border-amber-100">🔔</span> <span class="font-bold text-sm text-gray-700">Notifikasi</span></div>
+                            <span class="text-gray-400 font-bold">›</span>
+                        </button>
+                        
+                        <button onclick="currentHistory.push(currentActiveTab); changeTab('bantuan', false);" class="w-full flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 card-shadow smooth-btn">
+                            <div class="flex items-center gap-3"><span class="text-lg bg-green-50 p-2 rounded-xl border border-green-100">🎧</span> <span class="font-bold text-sm text-gray-700">Pusat Bantuan</span></div>
+                            <span class="text-gray-400 font-bold">›</span>
+                        </button>
+                        
+                        <button onclick="showModal('Keluar Akun', 'Apakah kamu yakin ingin keluar? Sesi belajarmu saat ini akan di-reset.', '🚪', true, 'doLogout()')" class="w-full flex items-center justify-between p-4 bg-red-50 rounded-2xl border border-red-100 smooth-btn mt-8">
+                            <div class="flex items-center gap-3"><span class="text-lg bg-red-100 p-2 rounded-xl border border-red-200">🚪</span> <span class="font-bold text-sm text-red-600">Keluar Akun</span></div>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- NAVIGATION & MODAL SYSTEM ---
+
+        function changeTab(tabName, isMainNav = true) {
+            const contentArea = document.getElementById('content-area');
+            const navBar = document.getElementById('main-bottom-nav');
+            const fab = document.getElementById('main-fab');
+            
+            if (tabName === 'login') {
+                if(navBar) navBar.classList.add('hidden');
+                if(fab) fab.classList.add('hidden');
+            } else {
+                if(navBar) navBar.classList.remove('hidden');
+                if(fab) fab.classList.remove('hidden');
+            }
+            
+            if (isMainNav && tabName !== 'login') {
+                currentHistory = [];
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('text-[#1E3A8A]');
+                    btn.classList.add('text-gray-400');
+                });
+                const activeNav = document.getElementById(`nav-${tabName}`);
+                if (activeNav) {
+                    activeNav.classList.remove('text-gray-400');
+                    activeNav.classList.add('text-[#1E3A8A]');
+                }
+            }
+
+            currentActiveTab = tabName;
+            contentArea.style.opacity = 0; 
+            
+            setTimeout(() => {
+                if (tabName === 'home') contentArea.innerHTML = renderHome();
+                else if (tabName === 'materi') contentArea.innerHTML = renderMateri();
+                else if (tabName === 'kuis') contentArea.innerHTML = renderKuisList();
+                else if (tabName === 'kuis-detail') contentArea.innerHTML = renderKuisDetail();
+                else if (tabName === 'tanya-ai') contentArea.innerHTML = renderTanyaAI();
+                else if (tabName === 'profile') contentArea.innerHTML = renderProfile();
+                else if (tabName === 'materi-detail') contentArea.innerHTML = renderMateriDetail();
+                else if (tabName === 'edit-profile') contentArea.innerHTML = renderEditProfile();
+                else if (tabName === 'notifikasi') contentArea.innerHTML = renderNotifikasi();
+                else if (tabName === 'bantuan') contentArea.innerHTML = renderBantuan();
+                else if (tabName === 'login') contentArea.innerHTML = renderLogin();
+                
+                contentArea.scrollTop = 0;
+                contentArea.style.opacity = 1; 
+                
+                // Pemicu Render MathJax khusus halaman yang memiliki output LaTeX
+                if(tabName === 'tanya-ai') {
+                    const chatContainer = document.getElementById('chat-container');
+                    if(chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+                    setTimeout(renderAllMath, 50); 
+                } else if (tabName === 'materi-detail' || tabName === 'kuis-detail') {
+                    if (window.MathJax && window.MathJax.typesetPromise) {
+                        setTimeout(() => MathJax.typesetPromise([contentArea]), 50);
+                    }
+                }
+            }, 150);
+        }
+
+        function goBack() {
+            if(currentHistory.length > 0) {
+                let prevTab = currentHistory.pop();
+                changeTab(prevTab, false);
+            } else {
+                changeTab('home', true);
+            }
+        }
+
+        function showModal(title, desc, icon = '✨', isConfirm = false, confirmCallback = null) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-icon').innerText = icon;
+            
+            const footer = document.getElementById('modal-footer');
+            if (isConfirm) {
+                footer.innerHTML = `
+                    <div class="flex gap-3 w-full">
+                        <button onclick="closeModal()" class="flex-1 py-3.5 bg-gray-100 text-gray-600 font-bold rounded-xl smooth-btn">Batal</button>
+                        <button onclick="closeModal(); ${confirmCallback}" class="flex-1 py-3.5 bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 smooth-btn">Keluar</button>
+                    </div>
+                `;
+            } else {
+                footer.innerHTML = `
+                    <button onclick="closeModal()" class="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 smooth-btn">Tutup</button>
+                `;
+            }
+            
+            const modal = document.getElementById('custom-modal');
+            const modalContent = document.getElementById('modal-content');
+            
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('custom-modal');
+            const modalContent = document.getElementById('modal-content');
+            
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+        }
+
+        // --- SUB PAGES PROFILE ---
+
+        function renderLogin() {
+            return `
+                <div class="p-6 flex flex-col items-center justify-center min-h-[90vh] bg-white animate-page pb-20">
+                    <div class="w-32 h-32 bg-white rounded-3xl shadow-lg shadow-orange-900/10 flex items-center justify-center mb-6 border border-orange-100 overflow-hidden relative">
+                        <!-- Gunakan file logo lokal yang diunggah pengguna -->
+                        <img src="logoaplikasi MantApp.jpg" alt="Logo MantApp" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <!-- Fallback jika gambar tidak ditemukan -->
+                        <div class="w-full h-full bg-gradient-to-br from-blue-50 to-orange-50 flex items-center justify-center hidden">
+                            <span class="text-5xl drop-shadow-md">🚀</span>
+                        </div>
+                    </div>
+                    <h1 class="text-4xl font-black tracking-tight drop-shadow-sm mb-2">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-b from-orange-400 to-orange-600">Mant</span><span class="text-transparent bg-clip-text bg-gradient-to-b from-blue-500 to-blue-800">App</span>
+                    </h1>
+                    <p class="text-[#1E3A8A] text-[13px] mb-10 font-bold italic bg-blue-50/60 px-5 py-2 rounded-full border border-blue-100 shadow-sm text-center tracking-wide">"Mantap pahamnya, Mantap nilainya"</p>
+
+                    <div class="w-full max-w-sm bg-white p-6 rounded-3xl card-shadow border border-blue-50">
+                        <div class="mb-5">
+                            <label class="block text-[11px] font-bold text-blue-600 mb-2 uppercase tracking-wider">Nama Lengkap</label>
+                            <input type="text" id="login-name" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-3.5 px-4 text-sm font-bold text-gray-700 focus:outline-none focus:border-blue-400 transition-colors" placeholder="Masukkan namamu..." onkeypress="if(event.key === 'Enter') doLogin()">
+                        </div>
+                        <button onclick="doLogin()" class="w-full py-3.5 bg-gradient-to-r from-orange-500 to-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-900/30 smooth-btn tracking-wide">Mulai Belajar ✨</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function doLogin() {
+            const nameInput = document.getElementById('login-name').value.trim();
+            if(!nameInput) {
+                showModal('Nama Kosong', 'Tulis namamu dulu ya sebelum mulai belajar!', '⚠️');
+                return;
+            }
+            userName = nameInput;
+            userClass = "Siswa MantApp"; 
+            
+            let savedChat = localStorage.getItem(getHistoryKey());
+            if (savedChat) {
+                chatMessages = JSON.parse(savedChat);
+            } else {
+                chatMessages = [{ role: 'ai', text: `Halo **${userName}**! Aku Tutor AI MantApp Premium 👑\n\nKetik pertanyaan matematika, rumus, atau upload foto soalmu di sini. Nanti aku bantu selesaikan langkah demi langkah! ✨` }];
+                localStorage.setItem(getHistoryKey(), JSON.stringify(chatMessages));
+            }
+            
+            changeTab('home', true);
+        }
+
+        function doLogout() {
+            userXP = 0; 
+            userName = ""; 
+            changeTab('login', true);
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profileImg = e.target.result;
+                    changeTab('profile', false); 
+                    setTimeout(() => showModal('Berhasil', 'Foto profilmu berhasil diperbarui!', '📸'), 200);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderEditProfile() {
+            return `
+                <div class="p-6 animate-page min-h-full pb-28 relative bg-white">
+                    <header class="flex items-center gap-4 mb-8">
+                        <button onclick="goBack()" class="p-2 bg-gray-50 rounded-xl smooth-btn border border-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <h1 class="text-lg font-bold text-[#1E3A8A]">Edit Profil</h1>
+                    </header>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Nama Lengkap</label>
+                            <input type="text" id="edit-name" value="${userName}" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:outline-none focus:border-blue-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Kelas / Status</label>
+                            <input type="text" id="edit-class" value="${userClass}" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:outline-none focus:border-blue-400">
+                        </div>
+                    </div>
+
+                    <button onclick="saveProfile()" class="w-full mt-8 py-4 bg-gradient-to-r from-blue-600 to-[#1E3A8A] text-white font-bold rounded-2xl shadow-lg shadow-blue-900/30 smooth-btn tracking-wide">Simpan Perubahan</button>
+                </div>
+            `;
+        }
+
+        function saveProfile() {
+            const newName = document.getElementById('edit-name').value.trim();
+            const newClass = document.getElementById('edit-class').value.trim();
+            
+            if(!newName) {
+                showModal('Data Tidak Valid', 'Nama tidak boleh kosong!', '⚠️');
+                return;
+            }
+            
+            userName = newName;
+            userClass = newClass;
+            goBack();
+            setTimeout(() => showModal('Berhasil!', 'Profilmu sudah berhasil diperbarui.', '✅'), 200);
+        }
+
+        function renderNotifikasi() {
+            return `
+                <div class="p-6 animate-page min-h-full pb-28 relative bg-white">
+                    <header class="flex items-center gap-4 mb-8">
+                        <button onclick="goBack()" class="p-2 bg-gray-50 rounded-xl smooth-btn border border-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <h1 class="text-lg font-bold text-[#1E3A8A]">Notifikasi</h1>
+                    </header>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 card-shadow">
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-800">Pengingat Belajar</h4>
+                                <p class="text-[10px] text-gray-400 font-semibold mt-1">Notifikasi harian untuk targetmu</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 card-shadow">
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-800">Pembaruan Materi</h4>
+                                <p class="text-[10px] text-gray-400 font-semibold mt-1">Info jika ada bab baru ditambahkan</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 card-shadow">
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-800">Promo & Penawaran</h4>
+                                <p class="text-[10px] text-gray-400 font-semibold mt-1">Informasi fitur premium & diskon</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBantuan() {
+            return `
+                <div class="p-6 animate-page min-h-full pb-28 relative bg-white">
+                    <header class="flex items-center gap-4 mb-8">
+                        <button onclick="goBack()" class="p-2 bg-gray-50 rounded-xl smooth-btn border border-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <h1 class="text-lg font-bold text-[#1E3A8A]">Pusat Bantuan</h1>
+                    </header>
+
+                    <div class="space-y-4">
+                        <div class="bg-gradient-to-br from-green-500 to-teal-600 p-5 rounded-3xl text-white card-shadow">
+                            <h3 class="font-bold text-sm mb-2">Punya pertanyaan?</h3>
+                            <p class="text-xs text-green-50 mb-4 font-medium">Tim MantApp siap membantumu kapan saja.</p>
+                            <textarea class="w-full bg-white/20 border border-white/30 rounded-xl p-3 text-sm focus:outline-none focus:bg-white/30 mb-3 placeholder-green-100 transition-colors" rows="3" placeholder="Tulis keluhan atau pertanyaanmu di sini..."></textarea>
+                            <button onclick="goBack(); setTimeout(() => showModal('Terkirim!', 'Pesanmu sudah kami terima. Tim kami akan membalas secepatnya.', '💌'), 200);" class="w-full py-3.5 bg-white text-teal-700 font-bold rounded-xl shadow-md smooth-btn">Kirim Pesan</button>
+                        </div>
+
+                        <h3 class="font-bold text-gray-800 text-sm mt-8 mb-3 uppercase tracking-wider px-1">FAQ (Sering Ditanyakan)</h3>
+                        
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 card-shadow">
+                            <h4 class="text-sm font-bold text-gray-800 mb-2">Bagaimana cara mendapatkan XP?</h4>
+                            <p class="text-[11px] text-gray-500 font-medium leading-relaxed">Kamu bisa mendapatkan XP dengan menjawab soal latihan, evaluasi, atau memenangkan tantangan AI dengan skor sempurna.</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 card-shadow">
+                            <h4 class="text-sm font-bold text-gray-800 mb-2">Apakah Tutor AI selalu benar?</h4>
+                            <p class="text-[11px] text-gray-500 font-medium leading-relaxed">Tutor AI dirancang menggunakan sistem cerdas, namun pastikan selalu mengecek ulang dengan rumus yang ada di modul konsep.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Start App
+        window.onload = () => {
+            changeTab('login', true);
+        };
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+name: Build Android APK
+
+# Kapan robot ini harus bekerja? 
+# Saat ada kode baru yang di-push ke branch 'main' atau saat dijalankan manual
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ambil Kode dari Repository
+        uses: actions/checkout@v4
+
+      - name: Siapkan Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Siapkan Java (Untuk Android)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Bungkus Web HTML ke Android (Capacitor)
+        run: |
+          # Buat folder khusus untuk file web
+          mkdir -p www
+          cp index.html www/
+          
+          # Install alat pembungkus
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          
+          # Buat proyek Android
+          npx cap init MantApp com.mantapp.app --web-dir www
+          npx cap add android
+          
+      - name: Proses Pembuatan File APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+          
+      - name: Simpan APK agar bisa diunduh
+        uses: actions/upload-artifact@v4
+        with:
+          name: MantApp-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
